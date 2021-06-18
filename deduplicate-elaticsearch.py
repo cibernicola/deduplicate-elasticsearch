@@ -6,16 +6,16 @@
 import hashlib
 from elasticsearch import Elasticsearch, helpers
 
-ES_HOST = '192.168.1.5:9200'
-ES_USER = 'elastic'
-ES_PASSWORD = 'OELFfigaPGpachgGv8fr'
+ES_HOST = 'URL:9200'
+ES_USER = 'USER'
+ES_PASSWORD = 'PWD'
 
 es = Elasticsearch([ES_HOST], http_auth=(ES_USER, ES_PASSWORD))
 dict_of_duplicate_docs = {}
 
 # The following line defines the fields that will be
 # used to determine if a document is a duplicate
-keys_to_include_in_hash = ["titular"]
+keys_to_include_in_hash = ["campo1","campo2"]
 
 
 # Process documents returned by the current search/scroll
@@ -41,7 +41,7 @@ def populate_dict_of_duplicate_docs(hit):
 # Loop over all documents in the index, and populate the
 # dict_of_duplicate_docs data structure.
 def scroll_over_all_docs():
-    for hit in helpers.scan(es, index='meneame'):
+    for hit in helpers.scan(es, index='indexName'):
         populate_dict_of_duplicate_docs(hit)
 
 
@@ -52,14 +52,14 @@ def loop_over_hashes_and_remove_duplicates():
       if len(array_of_ids) > 1:
         print("********** Duplicate docs hash=%s **********" % hashval)
         # Get the documents that have mapped to the current hasva
-        matching_docs = es.mget(index="meneame", doc_type="_doc", body={"ids": array_of_ids})
+        matching_docs = es.mget(index="indexName", doc_type="_doc", body={"ids": array_of_ids})
         current = 0 #contador de iteraciones del dict que contiene los datos de los docs duplicados
         totalDocs = len(matching_docs) -1 #màximo de iteraciones equivale al total de documentos duplicados, menos uno 
 
         for doc in matching_docs['docs']:           
             current+=1
             if current <= totalDocs: #si el contador es menor o igual al contador de docs eliminados, el documento se elimina.
-                es.delete(index="meneame", doc_type="_doc", id=doc.get('_id'))
+                es.delete(index="indexName", doc_type="_doc", id=doc.get('_id'))
                 print("Eliminando doc=%s\n" % doc)
 
 
